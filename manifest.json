@@ -1,0 +1,11 @@
+[
+  {
+    "guid": "74c7cfb4-0b86-4615-bb46-a5144230a638",
+    "name": "Playback Analytics",
+    "description": "Adds an administrator dashboard for all playable media, including never-watched items. Includes storage, viewing time, sessions, viewers, series-level episode aggregation, filtering, sorting, and CSV export.",
+    "overview": "Library-wide playback and storage analytics powered by Jellyfin and Playback Reporting.",
+    "owner": "GitHub repository owner",
+    "category": "General",
+    "versions": []
+  }
+]

@@ -1,0 +1,141 @@
+# ---------------------------------------------------------------------------
+# .NET / MSBuild
+# ---------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.swp
+*.pidb
+*.booproj
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+msbuild.log
+msbuild.err
+msbuild.wrn
+.msbuild/
+*.binlog
+StyleCopReport.xml
+*.dotCover
+.dotnet/
+.dotnet-tools/
+*.DotSettings.user
+
+# Roslyn / analyzers cache
+.ionide/
+*.sarif
+
+# ---------------------------------------------------------------------------
+# Build and packaging output (scripts/build.sh, CI)
+# ---------------------------------------------------------------------------
+dist/
+artifacts/
+publish/
+*.zip
+!.github/**/*.zip
+meta.json
+!manifest.json
+
+# ---------------------------------------------------------------------------
+# Tests / coverage
+# ---------------------------------------------------------------------------
+TestResults/
+TestResult.xml
+coverage/
+coverage.*.xml
+coverage.json
+*.coverage
+*.coveragexml
+*.trx
+lcov.info
+BenchmarkDotNet.Artifacts/
+
+# ---------------------------------------------------------------------------
+# Node (playbackAnalytics.test.js helpers)
+# ---------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm/
+.eslintcache
+
+# ---------------------------------------------------------------------------
+# Python (scripts/update_manifest.py)
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# ---------------------------------------------------------------------------
+# IDEs and editors
+# ---------------------------------------------------------------------------
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sln.iml
+.history/
+*.code-workspace
+*~
+\#*\#
+.#*
+
+# ---------------------------------------------------------------------------
+# OS
+# ---------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---------------------------------------------------------------------------
+# Local secrets, logs, and overrides
+# ---------------------------------------------------------------------------
+*.log
+.env
+.env.*
+!.env.example
+*.local
+local.settings.json
+appsettings.*.local.json
+
+# ---------------------------------------------------------------------------
+# Jellyfin local dev data (never commit a real server's state)
+# ---------------------------------------------------------------------------
+jellyfin-data/
+jellyfin-config/
+jellyfin-cache/
+*.db
+*.db-shm
+*.db-wal
+
+# ---------------------------------------------------------------------------
+# Claude Code local state
+# ---------------------------------------------------------------------------
+.claude/settings.local.json

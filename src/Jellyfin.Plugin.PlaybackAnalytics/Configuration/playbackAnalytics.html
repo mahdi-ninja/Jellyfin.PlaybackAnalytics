@@ -1,0 +1,389 @@
+<div id="PlaybackAnalyticsPage" data-role="page" class="page type-interior pluginConfigurationPage">
+  <style>
+    #PlaybackAnalyticsPage {
+      --pa-gap: 1rem;
+      --pa-border: rgba(255, 255, 255, 0.12);
+      --pa-muted: rgba(255, 255, 255, 0.67);
+      --pa-card: rgba(255, 255, 255, 0.055);
+      --pa-card-hover: rgba(255, 255, 255, 0.085);
+      --pa-accent: #00a4dc;
+    }
+
+    #PlaybackAnalyticsPage .pa-container {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 1.5rem 2.5%;
+    }
+
+    #PlaybackAnalyticsPage .pa-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    #PlaybackAnalyticsPage .pa-title {
+      margin: 0;
+    }
+
+    #PlaybackAnalyticsPage .pa-subtitle {
+      color: var(--pa-muted);
+      margin-top: .35rem;
+      max-width: 900px;
+    }
+
+    #PlaybackAnalyticsPage .pa-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: var(--pa-gap);
+      margin: 1.25rem 0;
+    }
+
+    #PlaybackAnalyticsPage .pa-card {
+      background: var(--pa-card);
+      border: 1px solid var(--pa-border);
+      border-radius: .6rem;
+      padding: 1rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-card-value {
+      font-size: 1.65rem;
+      line-height: 1.15;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    #PlaybackAnalyticsPage .pa-card-label {
+      margin-top: .35rem;
+      color: var(--pa-muted);
+      font-size: .9rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-tabs {
+      display: flex;
+      gap: .5rem;
+      margin: 1.25rem 0 1rem;
+      flex-wrap: wrap;
+    }
+
+    #PlaybackAnalyticsPage .pa-tab {
+      border: 1px solid var(--pa-border);
+      background: transparent;
+      color: inherit;
+      border-radius: 999px;
+      padding: .55rem 1rem;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    #PlaybackAnalyticsPage .pa-tab:hover {
+      background: var(--pa-card-hover);
+    }
+
+    #PlaybackAnalyticsPage .pa-tab.pa-active {
+      background: var(--pa-accent);
+      border-color: var(--pa-accent);
+      color: #fff;
+    }
+
+    #PlaybackAnalyticsPage .pa-controls {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(150px, .8fr)) auto auto;
+      gap: .75rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-control label {
+      display: block;
+      font-size: .8rem;
+      color: var(--pa-muted);
+      margin-bottom: .35rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-control input,
+    #PlaybackAnalyticsPage .pa-control select {
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 2.6rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-actions {
+      display: flex;
+      gap: .5rem;
+      align-items: end;
+    }
+
+    #PlaybackAnalyticsPage .pa-button {
+      min-height: 2.6rem;
+      white-space: nowrap;
+    }
+
+    #PlaybackAnalyticsPage .pa-status-row {
+      display: flex;
+      gap: .75rem;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      min-height: 2.2rem;
+      margin-bottom: .5rem;
+      color: var(--pa-muted);
+    }
+
+    #PlaybackAnalyticsPage .pa-error {
+      color: #ff7373;
+      white-space: pre-wrap;
+    }
+
+    #PlaybackAnalyticsPage .pa-warning {
+      border: 1px solid rgba(255, 190, 60, .5);
+      background: rgba(255, 190, 60, .08);
+      padding: .75rem 1rem;
+      border-radius: .5rem;
+      margin: .75rem 0 1rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-hidden {
+      display: none !important;
+    }
+
+    #PlaybackAnalyticsPage .pa-table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 340px);
+      border: 1px solid var(--pa-border);
+      border-radius: .5rem;
+    }
+
+    #PlaybackAnalyticsPage table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    #PlaybackAnalyticsPage th,
+    #PlaybackAnalyticsPage td {
+      text-align: left;
+      padding: .65rem .75rem;
+      border-bottom: 1px solid var(--pa-border);
+      white-space: nowrap;
+      vertical-align: top;
+    }
+
+    #PlaybackAnalyticsPage th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #202020;
+      font-weight: 600;
+    }
+
+    #PlaybackAnalyticsPage th[data-sort] {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #PlaybackAnalyticsPage th[data-sort]:hover {
+      text-decoration: underline;
+    }
+
+    #PlaybackAnalyticsPage td.pa-wrap,
+    #PlaybackAnalyticsPage th.pa-wrap {
+      white-space: normal;
+      min-width: 180px;
+    }
+
+    #PlaybackAnalyticsPage td.pa-name {
+      white-space: normal;
+      min-width: 220px;
+      font-weight: 500;
+    }
+
+    #PlaybackAnalyticsPage tr.pa-unwatched td {
+      opacity: .72;
+    }
+
+    #PlaybackAnalyticsPage .pa-progress {
+      min-width: 110px;
+    }
+
+    #PlaybackAnalyticsPage .pa-progress-bar {
+      width: 100%;
+      height: .42rem;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .12);
+      margin-top: .3rem;
+    }
+
+    #PlaybackAnalyticsPage .pa-progress-fill {
+      height: 100%;
+      background: var(--pa-accent);
+    }
+
+    #PlaybackAnalyticsPage .pa-empty {
+      padding: 2rem;
+      text-align: center;
+      color: var(--pa-muted);
+    }
+
+    @media (max-width: 1050px) {
+      #PlaybackAnalyticsPage .pa-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      #PlaybackAnalyticsPage .pa-actions {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 650px) {
+      #PlaybackAnalyticsPage .pa-container {
+        padding: 1rem;
+      }
+
+      #PlaybackAnalyticsPage .pa-controls {
+        grid-template-columns: 1fr;
+      }
+
+      #PlaybackAnalyticsPage .pa-actions {
+        grid-column: auto;
+      }
+
+      #PlaybackAnalyticsPage .pa-button {
+        flex: 1;
+      }
+    }
+  </style>
+
+  <div class="pa-container">
+    <div class="pa-header">
+      <div>
+        <h1 class="pa-title">Playback Analytics</h1>
+        <div class="pa-subtitle">
+          Library-wide playback and storage analytics. Items with no Playback Reporting history are included as never watched.
+        </div>
+      </div>
+    </div>
+
+    <div class="pa-summary">
+      <div class="pa-card">
+        <div id="paTotalItems" class="pa-card-value">-</div>
+        <div class="pa-card-label">Playable items</div>
+      </div>
+      <div class="pa-card">
+        <div id="paUnwatchedItems" class="pa-card-value">-</div>
+        <div class="pa-card-label">Never watched items</div>
+      </div>
+      <div class="pa-card">
+        <div id="paSeriesCount" class="pa-card-value">-</div>
+        <div class="pa-card-label">TV series</div>
+      </div>
+      <div class="pa-card">
+        <div id="paTotalStorage" class="pa-card-value">-</div>
+        <div class="pa-card-label">Total storage</div>
+      </div>
+      <div class="pa-card">
+        <div id="paUnwatchedStorage" class="pa-card-value">-</div>
+        <div class="pa-card-label">Never-watched storage</div>
+      </div>
+      <div class="pa-card">
+        <div id="paTotalHours" class="pa-card-value">-</div>
+        <div class="pa-card-label">Viewing hours</div>
+      </div>
+    </div>
+
+    <div id="paRetentionWarning" class="pa-warning pa-hidden">
+      “Never watched” means no matching event exists in the playback history currently retained by Playback Reporting.
+    </div>
+
+    <div class="pa-tabs" role="tablist" aria-label="Analytics view">
+      <button id="paItemsTab" class="pa-tab pa-active" type="button" data-view="items">Items</button>
+      <button id="paSeriesTab" class="pa-tab" type="button" data-view="series">Series</button>
+    </div>
+
+    <div class="pa-controls">
+      <div class="pa-control">
+        <label for="paSearch">Search</label>
+        <input id="paSearch" class="emby-input" type="search" placeholder="Title, series, season or viewer">
+      </div>
+
+      <div class="pa-control">
+        <label for="paWatchFilter">Watch status</label>
+        <select id="paWatchFilter" class="emby-select"></select>
+      </div>
+
+      <div id="paTypeControl" class="pa-control">
+        <label for="paTypeFilter">Media type</label>
+        <select id="paTypeFilter" class="emby-select">
+          <option value="all">All types</option>
+          <option value="Movie">Movies</option>
+          <option value="Episode">Episodes</option>
+          <option value="Video">Videos</option>
+          <option value="Audio">Audio</option>
+        </select>
+      </div>
+
+      <div class="pa-actions">
+        <button id="paRefresh" type="button" class="raised button-submit pa-button">Refresh</button>
+        <button id="paExport" type="button" class="raised pa-button">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="pa-status-row">
+      <div id="paStatus">Ready.</div>
+      <div id="paLastRefresh"></div>
+    </div>
+
+    <div id="paError" class="pa-error"></div>
+
+    <div class="pa-table-wrap">
+      <table>
+        <thead id="paTableHead"></thead>
+        <tbody id="paRows"></tbody>
+      </table>
+      <div id="paEmpty" class="pa-empty pa-hidden">No rows match the current filters.</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const page = document.getElementById('PlaybackAnalyticsPage');
+
+      function start() {
+        if (window.PlaybackAnalyticsApp) {
+          window.PlaybackAnalyticsApp.init(page);
+        }
+      }
+
+      if (window.PlaybackAnalyticsApp) {
+        start();
+        return;
+      }
+
+      if (document.getElementById('playbackAnalyticsScript')) {
+        const waitForApp = window.setInterval(() => {
+          if (window.PlaybackAnalyticsApp) {
+            window.clearInterval(waitForApp);
+            start();
+          }
+        }, 50);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = 'playbackAnalyticsScript';
+      script.src = ApiClient.getUrl('web/ConfigurationPage', {
+        name: 'playback-analytics.js'
+      });
+      script.onload = start;
+      script.onerror = () => {
+        const target = document.getElementById('paError');
+        if (target) {
+          target.textContent = 'Failed to load the Playback Analytics JavaScript resource.';
+        }
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
+</div>

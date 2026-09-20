@@ -1,0 +1,167 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to publish, for example v1.0.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Validate release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BUILD_VERSION="$(awk -F': *' '$1 == "version" {gsub(/"/, "", $2); print $2; exit}' build.yaml)"
+          TAG_VERSION="${{ steps.release.outputs.tag }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+
+          # Allow convenient v1.0.0 tags for a 1.0.0.0 Jellyfin version.
+          if [[ "$TAG_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG_VERSION="${TAG_VERSION}.0"
+          fi
+
+          if [ "$TAG_VERSION" != "$BUILD_VERSION" ]; then
+            echo "Tag version ($TAG_VERSION) does not match build.yaml version ($BUILD_VERSION)." >&2
+            exit 1
+          fi
+
+          echo "version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Run checks and build
+        run: ./scripts/build.sh
+
+      - name: Resolve package metadata
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP="$(find dist -maxdepth 1 -type f -name '*.zip' -print -quit)"
+          if [ -z "$ZIP" ]; then
+            echo "No release ZIP was produced." >&2
+            exit 1
+          fi
+
+          ASSET="$(basename "$ZIP")"
+          CHECKSUM="$(md5sum "$ZIP" | awk '{print $1}')"
+          TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
+          echo "checksum=$CHECKSUM" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          ZIP: ${{ steps.package.outputs.zip }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ZIP" --clobber
+          else
+            gh release create "$TAG" "$ZIP" \
+              --title "Playback Analytics $VERSION" \
+              --generate-notes
+          fi
+
+      - name: Update Jellyfin repository manifest
+        env:
+          REPOSITORY: ${{ github.repository }}
+          TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          ASSET: ${{ steps.package.outputs.asset }}
+          CHECKSUM: ${{ steps.package.outputs.checksum }}
+          TIMESTAMP: ${{ steps.package.outputs.timestamp }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Switch back to the default branch so manifest.json is served from a
+          # stable raw.githubusercontent.com URL.
+          git fetch origin "$DEFAULT_BRANCH"
+          git checkout -B "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+
+          python3 scripts/update_manifest.py \
+            --manifest manifest.json \
+            --repository "$REPOSITORY" \
+            --tag "$TAG" \
+            --version "$VERSION" \
+            --asset "$ASSET" \
+            --checksum "$CHECKSUM" \
+            --timestamp "$TIMESTAMP" \
+            --changelog "Release $VERSION. See the GitHub release notes for details."
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+
+          if git diff --cached --quiet; then
+            echo "manifest.json is already up to date."
+            exit 0
+          fi
+
+          git commit -m "chore: update Jellyfin manifest for $TAG [skip ci]"
+          git push origin "$DEFAULT_BRANCH"
+
+      - name: Summary
+        env:
+          REPOSITORY: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          {
+            echo "## Jellyfin repository ready"
+            echo
+            echo "Add this repository URL in Jellyfin Dashboard -> Plugins -> Repositories:"
+            echo
+            echo '```text'
+            echo "https://raw.githubusercontent.com/$REPOSITORY/$DEFAULT_BRANCH/manifest.json"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

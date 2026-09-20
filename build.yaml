@@ -1,0 +1,17 @@
+---
+name: "Playback Analytics"
+guid: "74c7cfb4-0b86-4615-bb46-a5144230a638"
+version: "1.0.0.0"
+targetAbi: "12.0.0.0"
+framework: "net10.0"
+overview: "Library-wide playback and storage analytics powered by Jellyfin and Playback Reporting."
+description: >
+  Adds an administrator dashboard for all playable media, including items never
+  watched. Includes storage, viewing time, sessions, last viewer, all viewers,
+  series-level episode aggregation, filtering, sorting, and CSV export.
+category: "General"
+owner: "Community"
+artifacts:
+  - "Jellyfin.Plugin.PlaybackAnalytics.dll"
+changelog: >
+  1.0.0.0 - Initial Jellyfin 12 release with item and series analytics views.
